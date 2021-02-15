@@ -1,6 +1,7 @@
 package me.din0s.activity
 
 import me.din0s.sql.tables.Levels
+import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.entities.Member
 import org.apache.logging.log4j.LogManager
 import org.jetbrains.exposed.sql.select
@@ -40,19 +41,39 @@ object ActivityManager {
     private fun restart(member: Member) {
         val id = member.idLong
         val voice = activeMembers[id]?.let {
-            activeMembers[id] = OffsetDateTime.now()
             ChronoUnit.MINUTES.between(it, OffsetDateTime.now())
         } ?: 0
 
         val stream = activeStreamers[id]?.let {
-            activeStreamers[id] = OffsetDateTime.now()
             ChronoUnit.MINUTES.between(it, OffsetDateTime.now())
         } ?: 0
 
         if (voice != 0L || stream != 0L) {
             logger.debug("Restarting state for ${member.user.asTag}")
             updateActivity(id, voice, stream)
+            activeMembers[id] = OffsetDateTime.now()
+            activeStreamers[id] = OffsetDateTime.now()
         }
+    }
+
+    fun init(jda: JDA) {
+        logger.info("Initializing")
+        jda.voiceChannels
+            .filter { vc -> vc.members.filter { !it.user.isBot }.size > 1 }
+            .flatMap { it.members }
+            .filter { !it.user.isBot }
+            .forEach {
+                logger.debug("${it.user.asTag} is connected")
+
+                val state = it.voiceState!!
+                if (!state.isDeafened) {
+                    startVoice(it)
+
+                    if (state.isStream) {
+                        startStream(it)
+                    }
+                }
+            }
     }
 
     fun endAll() {

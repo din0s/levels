@@ -25,6 +25,7 @@ fun main() {
 class Ready: ListenerAdapter() {
     override fun onReady(event: ReadyEvent) {
         Database.init()
+        ActivityManager.init(event.jda)
     }
 }
 

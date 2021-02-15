@@ -1,10 +1,9 @@
-package me.din0s.listeners
+package me.din0s
 
 import me.din0s.commands.Command
 import me.din0s.commands.XpCommand
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
-import org.apache.logging.log4j.LogManager
 
 class MessageListener: ListenerAdapter() {
     private val prefix = "?"

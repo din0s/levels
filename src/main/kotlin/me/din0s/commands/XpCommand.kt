@@ -1,5 +1,6 @@
 package me.din0s.commands
 
+import me.din0s.activity.ActivityManager
 import me.din0s.sql.tables.Levels
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
@@ -40,27 +41,15 @@ class XpCommand: Command(
                 event.member!!
             }
         }
-        transaction {
-            val query = Levels.select { Levels.userId eq member.idLong }
 
-            val voice = when {
-                query.empty() -> 0
-                else -> query.first()[Levels.voiceMins]
-            }
+        val activity = ActivityManager.getActivity(member)
+        val eb = EmbedBuilder()
+        eb.setAuthor(member.user.asTag, null, member.user.effectiveAvatarUrl)
+        eb.setColor(member.color)
+        eb.addField("Voice Minutes", activity.voiceMins.toString(), true)
+        eb.addField("Stream Minutes", activity.streamMins.toString(), true)
+        eb.setTimestamp(Instant.now())
 
-            val stream = when {
-                query.empty() -> 0
-                else -> query.first()[Levels.streamMins]
-            }
-
-            val eb = EmbedBuilder()
-            eb.setAuthor(member.user.asTag, null, member.user.effectiveAvatarUrl)
-            eb.setColor(member.color)
-            eb.addField("Voice Minutes", voice.toString(), true)
-            eb.addField("Stream Minutes", stream.toString(), true)
-            eb.setTimestamp(Instant.now())
-
-            event.channel.sendMessage(eb.build()).queue()
-        }
+        event.channel.sendMessage(eb.build()).queue()
     }
 }

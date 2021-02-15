@@ -7,6 +7,8 @@ import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.entities.Activity
 import net.dv8tion.jda.api.events.ReadyEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
+import net.dv8tion.jda.api.requests.GatewayIntent
+import net.dv8tion.jda.api.utils.MemberCachePolicy
 import org.apache.logging.log4j.LogManager
 
 fun main() {
@@ -14,13 +16,14 @@ fun main() {
     JDABuilder.createDefault(token)
         .addEventListeners(Ready())
         .addEventListeners(ActivityListener(), MessageListener())
+        .enableIntents(GatewayIntent.GUILD_MEMBERS)
+        .setMemberCachePolicy(MemberCachePolicy.ALL)
         .setActivity(Activity.watching("you \uD83D\uDC40"))
         .build()
 }
 
 class Ready: ListenerAdapter() {
     override fun onReady(event: ReadyEvent) {
-        LogManager.getLogger().info("Client READY")
         Database.init()
     }
 }

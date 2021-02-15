@@ -16,7 +16,7 @@ object Database {
     }
 
     private fun connect() {
-        logger.info("Connecting...")
+        logger.info("Connecting to database")
         val ip = System.getenv("DB_IP")
         val port = System.getenv("DB_PORT")
         val db = System.getenv("DB_NAME")
@@ -29,14 +29,12 @@ object Database {
             user = user,
             password = pass
         )
-        logger.info("Done!")
     }
 
     private fun addDefaults() {
-        logger.info("Creating default tables...")
+        logger.info("Creating default tables")
         transaction {
             SchemaUtils.createMissingTablesAndColumns(Levels)
         }
-        logger.info("Done!")
     }
 }
